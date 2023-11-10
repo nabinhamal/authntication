@@ -5,6 +5,10 @@ import connect from "./database/conn.js";
 
 import router from './router/route.js';
 
+
+
+
+
 const app = express();
 
 
@@ -16,7 +20,7 @@ app.disable('x-powerde-by');//less hackoers know about our stack
 
 
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 /**Http get request */
  app.get('/',(req,res)=>{
