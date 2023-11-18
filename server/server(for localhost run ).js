@@ -5,12 +5,9 @@ import connect from "./database/conn.js";
 
 import router from './router/route.js';
 
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-//es6 fix
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+
 
 const app = express();
 
@@ -21,13 +18,7 @@ app.use(cors());
 app.use(morgan('tiny'));
 app.disable('x-powerde-by');//less hackoers know about our stack
 
-app.use(express.static(path.join(__dirname, './client/build')))
 
-
-//rest api
-app.use('*', function(req,res){
-   res.sendFile(path.join(__dirname, './client/build/index.html'));
- });
 
 const port = process.env.PORT || 8080;
 
