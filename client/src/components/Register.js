@@ -8,6 +8,7 @@ import convertToBase64 from '../helper/convert';
 
 
 import styles from '../styles/Username.module.css';
+import { registerUser } from '../helper/helper';
 
 export default function Register() {
 
@@ -16,8 +17,8 @@ export default function Register() {
 
   const formik = useFormik({
     initialValues : {
-      email: 'doyol56239@cnogs.com',
-      username: 'example123',
+      email: 'admin@admin.com',
+      username: 'admin',
       password : 'admin@123'
     },
     validate : registerValidation,
@@ -25,7 +26,13 @@ export default function Register() {
     validateOnChange: false,
     onSubmit : async values => {
     values = await Object.assign(values,{profile: file})
-console.log(values)
+let registerPromise = registerUser(values)
+toast.promise(registerPromise,{
+  loading: 'Creating...',
+  success: <b>Register successfully ...!</b>,
+  error: <b>Could not register</b>
+});
+registerPromise.then(function(){ navigate('/')})
     }
   })
 

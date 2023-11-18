@@ -1,25 +1,30 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import avatar from '../assets/profile.png'
-import {Toaster } from "react-hot-toast"
-import {useFormik} from "formik"
-
-import styles from '../styles/Username.module.css'
+import React, { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import avatar from '../assets/profile.png';
+import { Toaster } from 'react-hot-toast';
+import { useFormik } from 'formik';
 import { usernameValidate } from '../helper/validate'
+import { useAuthStore } from '../store/store'
 
-const Username = () => {
-    const formik = useFormik({
-        initialValues:{
-            username:''
-        },
-        validate : usernameValidate,
-        validateOnBlur: false,
-        validateOnChange: false,
-        onSubmit: async values => {
-            console.log(values)
-        }
-    })
+import styles from '../styles/Username.module.css';
 
+export default function Username() {
+
+  const navigate = useNavigate();
+  const setUsername = useAuthStore(state => state.setUsername);
+
+  const formik = useFormik({
+    initialValues : {
+      username : 'example123'
+    },
+    validate : usernameValidate,
+    validateOnBlur: false,
+    validateOnChange: false,
+    onSubmit : async values => {
+      setUsername(values.username);
+      navigate('/password')
+    }
+  })
 
   return (
     <div className="container mx-auto">
@@ -49,14 +54,11 @@ const Username = () => {
               <div className="text-center py-4">
                 <span className='text-gray-500'>Not a Member <Link className='text-red-500' to="/register">Register Now</Link></span>
               </div>
-            
+
           </form>
-          </div>
+
         </div>
       </div>
-  
-)
-  
+    </div>
+  )
 }
-
-export default Username
