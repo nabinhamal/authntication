@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer';
 import Mailgen from 'mailgen';
-import ENV from '../config.js';
 
 // Create Nodemailer transporter
 const transporter = nodemailer.createTransport({
@@ -8,8 +7,8 @@ const transporter = nodemailer.createTransport({
     port: 587,
     secure: false,
     auth: {
-        user: ENV.EMAIL,
-        pass: ENV.PASSWORD,
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
     }
 });
 
@@ -48,7 +47,7 @@ export const registerMail = async (req, res) => {
 
         // Message configuration
         const message = {
-            from: ENV.EMAIL,
+            from: process.env.EMAIL,
             to: userEmail,
             subject: subject || "Signup Successful",
             html: emailBody
