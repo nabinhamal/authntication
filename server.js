@@ -1,66 +1,69 @@
-import express from "express";
+import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import connect from "./database/conn.js";
+import connect from './database/conn.js';
 import router from './router/route.js';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-
-import bodyParser from 'body-parser'; 
+import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-dotenv.config(); 
 
-// es6 fix
+dotenv.config();
+
+// ES6 fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-
-  
-
-/**middlewares */
-app.use(helmet());
+// Middleware to handle CORS
 app.use(cors({
-    origin: "http://localhost:3000",
-    methods:["GET" ,"POST"]
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
-app.use(express.json());
+
+// Middleware for setting security headers
+app.use(helmet());
+
+// Middleware for logging
 app.use(morgan('combined'));
-app.disable('x-powered-by');
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Middleware to parse URL-encoded requests
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.static(path.join(__dirname, './client/build')))
 
+// Middleware to serve static files
+app.use(express.static(path.join(__dirname, './client/build')));
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-   console.error(err.stack);
-   res.status(500).send('Something went wrong!');
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
 });
 
-const port = process.env.PORT || 8080;
-
-/**Http get request */
+// HTTP get request handler
 app.get('/', (req, res) => {
-    res.status(201).json("Home get request");
+  res.status(201).json('Home get request');
 });
 
-/**api routes */
+// API routes
 app.use('/api', router);
 
-// rest api
-app.use('*', function(req, res){
-    res.sendFile(path.join(__dirname, './client/build/index.html'));
+// Rest API for serving React app
+app.use('*', (req, res) => {
+  res.sendFile(path.join(__dirname, './client/build/index.html'));
 });
 
-/**start server only if we have a valid connection */
-connect().then(() => {
-    try {
-        app.listen(port, () => {
-            console.log(`Server connected to ${port}`);
-        });
-    } catch (error) {
-        console.log('Cannot connect to server');
-    }
-}).catch(error => {
-    console.log("Invalid database connection..", error);
-});
+// Start the server only if there's a valid connection
+connect()
+  .then(() => {
+    app.listen(process.env.PORT || 8080, () => {
+      console.log(`Server connected to ${process.env.PORT || 8080}`);
+    });
+  })
+  .catch((error) => {
+    console.log('Invalid database connection..', error);
+  });
