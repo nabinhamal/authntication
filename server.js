@@ -11,24 +11,27 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 dotenv.config(); 
 
-
-
-//es6 fix
+// es6 fix
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const app = express();
 
-
-
+// Set Content Security Policy headers
+app.use(helmet.contentSecurityPolicy({
+    directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", 'http://localhost:8080'],  // Add the domain you want to connect to
+        // Add other directives as needed
+    },
+}));
 
 /**middlewares */
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(morgan('combined'));
-
+app.disable('x-powered-by');
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, './client/build')))
 
@@ -47,11 +50,10 @@ app.get('/', (req, res) => {
 /**api routes */
 app.use('/api', router);
 
-
-//rest api
-app.use('*', function(req,res){
+// rest api
+app.use('*', function(req, res){
     res.sendFile(path.join(__dirname, './client/build/index.html'));
-  });
+});
 
 /**start server only if we have a valid connection */
 connect().then(() => {
