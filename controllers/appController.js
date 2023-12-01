@@ -2,7 +2,7 @@ import UserModel from '../model/User.Model.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
  import otpGenerator from 'otp-generator'
-import { request } from 'express';
+
 
 
 /**middleware for verify user */
@@ -62,10 +62,22 @@ export async function register(req, res) {
             email
         });
 
-        const result = await user.save();
-        res.status(201).json({ msg: "User registered successfully" });
+        try {
+            const result = await user.save();
+            res.status(201).json({ msg: "User registered successfully" });
+        } catch (error) {
+            if (error.code === 11000 && error.keyPattern && error.keyPattern.username) {
+                return res.status(400).json({ error: "Username already exists" });
+            } else if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+                return res.status(400).json({ error: "Email already exists" });
+            } else {
+                console.error('Unexpected Error:', error);
+                return res.status(500).json({ error: "Internal Server Error" });
+            }
+        }
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Unexpected Error:', error);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 }
 

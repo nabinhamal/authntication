@@ -2,56 +2,54 @@ import express from "express";
 import cors from 'cors';
 import morgan from 'morgan';
 import connect from "./database/conn.js";
-import dotenv from 'dotenv';
 import router from './router/route.js';
-
-dotenv.config();
-
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-//es6 fix
-const __dirname = path.resolve();
-
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import path from 'path'
+import bodyParser from 'body-parser'; 
+dotenv.config(); 
 const app = express();
 
+
+
+const __dirname = path.resolve();
 /**middlewares */
+app.use(helmet());
+app.use(cors());
 app.use(express.json());
-app.use(cors({
-  origin: 'https://nabinauth.netlify.app', // Allow requests from this origin
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-}));
-app.use(morgan('tiny'));
-app.disable('x-powered-by'); // Fix the typo here
+app.use(morgan('combined'));
+app.disable('x-powered-by');
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-app.use(express.static(path.join(__dirname, './client/build')))
-
-
-//rest api
-app.use('*', function(req,res){
-   res.sendFile(path.join(__dirname, './client/build/index.html'));
- });
+app.use((err, req, res, next) => {
+   console.error(err.stack);
+   res.status(500).send('Something went wrong!');
+});
 
 const port = process.env.PORT || 8080;
 
 /**Http get request */
 app.get('/', (req, res) => {
-   res.status(201).json("Home get request");
+    res.status(201).json("Home get request");
 });
 
 /**api routes */
 app.use('/api', router);
+app.use(express.static(path.join(__dirname, '/client/build')));
 
-/**start serve only if we have a valid connection */
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+})
+
+/**start server only if we have a valid connection */
 connect().then(() => {
     try {
         app.listen(port, () => {
             console.log(`Server connected to ${port}`);
         });
-    } catch(error) {
+    } catch (error) {
         console.log('Cannot connect to server');
     }
 }).catch(error => {
-    console.log("Invalid database connection..");
+    console.log("Invalid database connection..", error);
 });

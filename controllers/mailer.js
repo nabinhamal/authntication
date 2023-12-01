@@ -1,66 +1,64 @@
 import nodemailer from 'nodemailer';
 import Mailgen from 'mailgen';
+import dotenv from 'dotenv';
 
-// Create Nodemailer transporter
-const transporter = nodemailer.createTransport({
+// Load environment variables from .env file
+dotenv.config();
+
+// https://ethereal.email/create
+let nodeConfig = {
     host: "smtp.ethereal.email",
     port: 587,
-    secure: false,
+    secure: false, // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
+        user: process.env.EMAIL, // loaded from .env
+        pass: process.env.PASSWORD, // loaded from .env
     }
-});
+}
 
-// Create Mailgen instance
-const MailGenerator = new Mailgen({
+let transporter = nodemailer.createTransport(nodeConfig);
+
+let MailGenerator = new Mailgen({
     theme: "default",
-    product: {
+    product : {
         name: "Mailgen",
         link: 'https://mailgen.js/'
     }
-});
+})
 
 /** POST: http://localhost:8080/api/registerMail 
  * @param: {
- *   "username" : "admin",
- *   "userEmail" : "admin@123",
- *   "text" : "",
- *   "subject" : "",
- * }
- */
+  "username" : "example123",
+  "userEmail" : "admin123",
+  "text" : "",
+  "subject" : "",
+}
+*/
 export const registerMail = async (req, res) => {
-    try {
-        const { username, userEmail, text, subject } = req.body;
+    const { username, userEmail, text, subject } = req.body;
 
-        // Email body
-        const email = {
-            body: {
-                name: username,
-                intro: text || 'Welcome to Mern Authorization! We\'re very excited to have you on board.',
-                outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
-            }
-        };
-
-        // Generate email body using Mailgen
-        const emailBody = MailGenerator.generate(email);
-
-        // Message configuration
-        const message = {
-            from: process.env.EMAIL,
-            to: userEmail,
-            subject: subject || "Signup Successful",
-            html: emailBody
-        };
-
-        // Send mail
-        await transporter.sendMail(message);
-
-        // Success response
-        return res.status(200).send({ msg: "You should receive an email from us." });
-    } catch (error) {
-        // Log the error for debugging
-        console.error('Email Sending Error:', error);
-        return res.status(500).send({ error: "Internal Server Error" });
+    // body of the email
+    var email = {
+        body : {
+            name: username,
+            intro : text || 'Welcome to Daily Tuition! We\'re very excited to have you on board.',
+            outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
+        }
     }
+
+    var emailBody = MailGenerator.generate(email);
+
+    let message = {
+        from : process.env.EMAIL,
+        to: userEmail,
+        subject : subject || "Signup Successful",
+        html : emailBody
+    }
+
+    // send mail
+    transporter.sendMail(message)
+        .then(() => {
+            return res.status(200).send({ msg: "You should receive an email from us."})
+        })
+        .catch(error => res.status(500).send({ error }))
 };

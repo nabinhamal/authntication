@@ -1,16 +1,21 @@
-import mongoose from 'mongoose'
-import { MongoMemoryServer } from 'mongodb-memory-server'
+import mongoose from 'mongoose';
 
-async function connect(){
-const mongod = await MongoMemoryServer.create();
-const getUri = mongod.getUri()
+async function connect() {
+    try {
+        const atlasUri = process.env.ATLAS_URI;
+        if (!atlasUri) {
+            console.error("ATLAS_URI not defined in environment variables.");
+            process.exit(1);
+        }
 
-mongoose.set('strictQuery',true)
-//const db = await mongoose.connect(getUri);
-const db = await mongoose.connect(process.env.ATLAS_URI)
-console.log("Database Connected")
-return db;
+        const db = await mongoose.connect(atlasUri);
+
+        console.log("Connected to MongoDB Atlas");
+        return db;
+    } catch (error) {
+        console.error("Error connecting to MongoDB:", error);
+        process.exit(1);
+    }
 }
-
 
 export default connect;
