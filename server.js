@@ -17,24 +17,14 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Use helmet with explicit directives
-app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          connectSrc: ["'self'", 'http://localhost:8080'],
-          // Add other directives as needed
-        },
-      },
-    })
-  );
+
   
 
 /**middlewares */
 app.use(helmet());
 app.use(cors({
-    origin: "http://localhost:8080",
+    origin: "http://localhost:3000",
+    methods:["GET" ,"POST"]
 }));
 app.use(express.json());
 app.use(morgan('combined'));
