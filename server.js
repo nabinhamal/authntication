@@ -5,7 +5,7 @@ import connect from "./database/conn.js";
 import router from './router/route.js';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import path from 'path'
+
 import bodyParser from 'body-parser'; 
 import path from 'path';
 import { fileURLToPath } from 'url';
