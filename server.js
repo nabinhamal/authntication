@@ -17,14 +17,19 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Set Content Security Policy headers
-app.use(helmet.contentSecurityPolicy({
-    directives: {
-        defaultSrc: ["'self'"],
-        connectSrc: ["'self'", 'http://localhost:8080'],  // Add the domain you want to connect to
-        // Add other directives as needed
-    },
-}));
+// Use helmet with explicit directives
+app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          connectSrc: ["'self'", 'http://localhost:8080'],
+          // Add other directives as needed
+        },
+      },
+    })
+  );
+  
 
 /**middlewares */
 app.use(helmet());
