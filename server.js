@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors';
+
 import morgan from 'morgan';
 import connect from './database/conn.js';
 import router from './router/route.js';
@@ -18,10 +18,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Middleware to handle CORS
-app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+  });
 
 // Middleware for setting security headers
 app.use(helmet());
