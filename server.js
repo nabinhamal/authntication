@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import cors from 'cors';
 dotenv.config();
 
 // ES6 fix
@@ -18,10 +18,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Middleware to handle CORS
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-  });
+let corsAllow ={
+    origin: "",
+    methods: "PUT, GET,PATCH,DELETE,HEAD",
+    credentials: true
+}
+app.use(cors(corsAllow))
 
 // Middleware for setting security headers
 app.use(helmet());
